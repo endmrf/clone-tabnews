@@ -2,8 +2,8 @@ test("GET to /api/v1/status should return 200", async () => {
   const response = await fetch("http://localhost:3000/api/v1/status");
   expect(response.status).toBe(200);
 
-  responseBody = await response.json();
-  databaseInfo = responseBody.dependencies.database;
+  const responseBody = await response.json();
+  const databaseInfo = responseBody.dependencies.database;
 
   expect(databaseInfo.version).toBeDefined();
   expect(databaseInfo.max_connections).toBeGreaterThanOrEqual(0);

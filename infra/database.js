@@ -1,8 +1,21 @@
-import pg from "pg";
+import { Client } from "pg";
 
 async function query(queryObject) {
-  const { Client } = pg;
+  let client;
 
+  try {
+    client = await getNewClient();
+    const result = await client.query(queryObject);
+    return result;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  } finally {
+    await client.end();
+  }
+}
+
+async function getNewClient() {
   const client = new Client({
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
@@ -12,16 +25,8 @@ async function query(queryObject) {
     ssl: getSSLValues(),
   });
 
-  try {
-    await client.connect();
-    const result = await client.query(queryObject);
-    return result;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  } finally {
-    await client.end();
-  }
+  await client.connect();
+  return client;
 }
 
 function getSSLValues() {
@@ -35,5 +40,6 @@ function getSSLValues() {
 }
 
 export default {
-  query: query,
+  query,
+  getNewClient,
 };
